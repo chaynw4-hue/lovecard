@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Beam 💖</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Prompt:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  overflow:hidden;
+  font-family:'Prompt',sans-serif;
+  background:linear-gradient(135deg,#ffe4ec,#e3f2fd);
+}
+
+/* หน้าเปิด */
+#startScreen{
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:linear-gradient(135deg,#ffb6c1,#b3e5fc);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  text-align:center;
+}
+
+.startBox{
+  background:white;
+  padding:40px;
+  border-radius:25px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.2);
+  animation:fadeIn 1s ease;
+}
+
+.startBox h1{
+  font-family:'Playfair Display',serif;
+  color:#d81b60;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:scale(0.8);}
+  to{opacity:1;transform:scale(1);}
+}
+
+/* เอฟเฟกต์แสงประกาย */
+.sparkle{
+  position:fixed;
+  width:4px;
+  height:4px;
+  background:white;
+  border-radius:50%;
+  opacity:0.8;
+  animation:twinkle 2s linear infinite;
+}
+
+@keyframes twinkle{
+  0%{opacity:0;transform:scale(0);}
+  50%{opacity:1;transform:scale(1);}
+  100%{opacity:0;transform:scale(0);}
+}
+
+/* หนังสือ */
+.book{
+  width:100vw;
+  height:100vh;
+  perspective:2000px;
+  position:relative;
+}
+
+.page{
+  position:absolute;
+  width:100%;
+  height:100%;
+  background:white;
+  border-radius:20px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.15);
+  transform-origin:left;
+  transition:transform 0.8s ease;
+  backface-visibility:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+  box-sizing:border-box;
+}
+
+.page h1{
+  font-family:'Playfair Display',serif;
+  color:#d81b60;
+  text-align:center;
+}
+
+.page p{
+  color:#555;
+  text-align:center;
+}
+
+/* รูปหลายรูป */
+.images{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-top:15px;
+  width:90%;
+}
+
+.images img{
+  width:100%;
+  border-radius:12px;
+  object-fit:cover;
+}
+
+/* ปุ่ม */
+.controls{
+  position:fixed;
+  bottom:20px;
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  padding:0 30px;
+  box-sizing:border-box;
+  z-index:999;
+}
+
+.controls button{
+  background:#d81b60;
+  border:none;
+  color:white;
+  padding:12px 22px;
+  border-radius:30px;
+  font-size:16px;
+  cursor:pointer;
+  box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+.page.flipped{
+  transform:rotateY(-180deg);
+}
+
+/* แถบแสดงหน้า */
+.progress{
+  position:fixed;
+  top:10px;
+  left:50%;
+  transform:translateX(-50%);
+  background:white;
+  padding:6px 15px;
+  border-radius:20px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.15);
+  font-size:14px;
+  z-index:999;
+}
+
+/* หัวใจลอย */
+.heart{
+  position:fixed;
+  font-size:22px;
+  animation:floatUp linear forwards;
+  opacity:0.8;
+}
+
+@keyframes floatUp{
+  to{
+    transform:translateY(-110vh);
+    opacity:0;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- หน้าเปิด -->
+<div id="startScreen">
+  <div class="startBox">
+    <h1>ถึง เบ้บ 💖<br>จาก เค้า 💑</h1>
+    <p>แตะหน้าจอเพื่อเปิดความรัก</p>
+  </div>
+</div>
+
+<!-- 🎶 เพลง MP3 -->
+<audio id="bgMusic" loop>
+  <source src="love.mp3" type="audio/mpeg">
+</audio>
+
+<div class="book" id="book"></div>
+
+<div class="progress" id="progress">หน้า 1 / 5</div>
+
+<div class="controls">
+  <button onclick="prevPage()">⬅️ ก่อนหน้า</button>
+  <button onclick="nextPage()">ถัดไป ➡️</button>
+</div>
+
+<script>
+/* 📸 รูปหลายรูปต่อหน้า */
+const pagesData=[
+{
+  title:"สุขสันต์วันวาเลนไทน์ 💖",
+  imgs:["image1.jpg","image2.jpg","image3.jpg","image4.jpg"]
+},
+{
+  title:"บีมคือคนพิเศษของเค้า 💕",
+  imgs:["image5.jpg","image6.jpg","image7.jpg","image8.jpg"]
+},
+{
+  title:"ทุกช่วงเวลาที่มีเธอมีความหมาย 💑",
+  imgs:["image9.jpg","image10.jpg","image1.jpg","image2.jpg"]
+},
+{
+  title:"เค้ารักเบ้บมากนะ 💖",
+  imgs:["image3.jpg","image4.jpg","image5.jpg","image6.jpg"]
+},
+{
+  title:"Forever With You 💍",
+  imgs:["image7.jpg","image8.jpg","image9.jpg","image10.jpg"]
+}
+];
+
+const book=document.getElementById("book");
+
+/* สร้างหน้า */
+pagesData.forEach((p,i)=>{
+  const page=document.createElement("div");
+  page.className="page";
+  page.style.zIndex=pagesData.length-i;
+  page.innerHTML=`
+    <h1>${p.title}</h1>
+    <div class="images">
+      ${p.imgs.map(img=>`<img src="${img}">`).join("")}
+    </div>
+    <p>เค้ารักเบ้บเสมอ 💞</p>
+  `;
+  book.appendChild(page);
+});
+
+const pages=document.querySelectorAll(".page");
+let currentPage=0;
+
+function updateProgress(){
+  document.getElementById("progress").innerText=
+    `หน้า ${currentPage+1} / ${pages.length}`;
+}
+
+function nextPage(){
+  if(currentPage<pages.length){
+    pages[currentPage].classList.add("flipped");
+    currentPage++;
+    if(currentPage>=pages.length) currentPage=pages.length-1;
+    updateProgress();
+  }
+}
+
+function prevPage(){
+  if(currentPage>0){
+    currentPage--;
+    pages[currentPage].classList.remove("flipped");
+    updateProgress();
+  }
+}
+
+/* ปัดนิ้วมือถือ */
+let startX=0;
+document.addEventListener("touchstart",e=>{
+  startX=e.touches[0].clientX;
+});
+document.addEventListener("touchend",e=>{
+  let endX=e.changedTouches[0].clientX;
+  if(startX-endX>50) nextPage();
+  if(endX-startX>50) prevPage();
+});
+
+/* คลิก */
+document.addEventListener("click",e=>{
+  if(!e.target.closest("button")) nextPage();
+});
+
+/* 💗 หัวใจลอย */
+function createHeart(){
+  const heart=document.createElement("div");
+  heart.className="heart";
+  heart.innerHTML="💗";
+  heart.style.left=Math.random()*100+"vw";
+  heart.style.bottom="0px";
+  heart.style.animationDuration=(3+Math.random()*2)+"s";
+  document.body.appendChild(heart);
+  setTimeout(()=>heart.remove(),5000);
+}
+setInterval(createHeart,600);
+
+/* ✨ แสงประกาย */
+function createSparkle(){
+  const s=document.createElement("div");
+  s.className="sparkle";
+  s.style.left=Math.random()*100+"vw";
+  s.style.top=Math.random()*100+"vh";
+  document.body.appendChild(s);
+  setTimeout(()=>s.remove(),2000);
+}
+setInterval(createSparkle,300);
+
+/* 🎶 เล่นเพลงหลังคลิก */
+document.body.addEventListener("click", function(){
+  const music=document.getElementById("bgMusic");
+  music.play();
+},{once:true});
+
+/* เริ่มหน้า */
+const startScreen=document.getElementById("startScreen");
+startScreen.addEventListener("click",()=>{
+  startScreen.style.display="none";
+});
+</script>
+
+</body>
+</html>
